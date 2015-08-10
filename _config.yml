@@ -64,6 +64,7 @@ pagination_dir: page
 Plugins:
 - hexo-generator-feed
 - hexo-generator-sitemap
+- hexo-math
 
 #atom feed
 feed:
