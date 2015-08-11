@@ -29,9 +29,9 @@ Suffix array 其实只是 suffix tree 的一种简化，而 suffix tree，只是
         return v;
     }
 
-再看看运行时间，字符串长度为n，n个字串排序，运行时间应为$O(nlgn)$。而每个字符串的比较又是$O(n)$，则总体时间复杂度为$O(n^2lgn)$，好像不是太好呢。
+再看看运行时间，字符串长度为n，n个字串排序，运行时间应为$O(nlgn)$。而每个字符串的比较又是$O(n)$，则总体时间复杂度为$O(n^2lgn)$。此处使用了C++的map，自带排序，所以找不到字符串排序的部分。但无论这个隐藏的排序在哪里，总是避免不了的。
 
-确实如此，由于Suffix array的重要用途，近几十年很多研究者投入到其获取算法的改进中。最近的一篇论文"A taxonomy of suffix array construction algorithms"指出：
+由于Suffix array的重要用途，近几十年很多研究者投入到其获取算法的改进中。最近的一篇论文"A taxonomy of suffix array construction algorithms"指出：
 
 1) Practical space-efficient suffix array construction algorithms (SACAs) exist that require worst-case time linear in string length;
 2) SACAs exist that are even faster in practice, though with supralinear worstcase construction time requirements;
