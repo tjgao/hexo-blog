@@ -33,13 +33,13 @@ Suffix array 其实只是 suffix tree 的一种简化，而 suffix tree，只是
 
 确实如此，由于Suffix array的重要用途，近几十年很多研究者投入到其获取算法的改进中。最近的一篇论文"A taxonomy of suffix array construction algorithms"指出：
 
-1. Practical space-efficient suffix array construction algorithms (SACAs) exist that require worst-case time linear in string length;
-2. SACAs exist that are even faster in practice, though with supralinear worstcase construction time requirements;
-3. Any problem whose solution can be computed using suffix trees is solvable with the same asymptotic complexity using suffix arrays.
+1) Practical space-efficient suffix array construction algorithms (SACAs) exist that require worst-case time linear in string length;
+2) SACAs exist that are even faster in practice, though with supralinear worstcase construction time requirements;
+3) Any problem whose solution can be computed using suffix trees is solvable with the same asymptotic complexity using suffix arrays.
 
 这种改进也不知道最后会达到什么程度，总而言之，线性时间的Suffix array获得是没有问题的。任何能够用 suffix tree 来解决的问题，也可以通过高效的 suffix array 获取算法来解决。
 
-最常见的几种求 suffix array 的有 prefix doubling 和 DC3 算法。 其中 prefix doubling (倍增算法)是最早的高效获取 suffix array 的尝试，也比较清晰，实现起来更容易。它基本思想是，naive 算法效率不好的原因是没有利用一个事实，即我们排序的一堆字符串是同一个字符串的后缀，而不是一堆随机的字符串，应该充分利用这一点。具体用语言来描述其算法是一个很困难的事情，我通过观察这张图最终理解了这个算法，并完成了一个实现。
+最常见的几种求 suffix array 的有 prefix doubling 和 DC3 算法。 其中 prefix doubling (倍增算法)是最早的高效获取 suffix array 的尝试，也比较清晰，实现起来更容易。它基本思想是，naive 算法效率不好的原因是没有利用一个事实，即我们排序的一堆字符串是同一个字符串的后缀，而不是一堆随机的字符串，应该充分利用这一点。具体用语言来描述其算法是一个很困难的事情，我通过观察这张图最终理解了这个算法，并完成了一个实现。要注意，这个示意图中的示例字符串是 aabaaaab，求它的suffix array。
 ![prefix doubling](http://7xl1lv.com1.z0.glb.clouddn.com/imageda.JPG)
 代码也附上。我相信还有各种可以优化的余地，但基本思路大致如此。
 
