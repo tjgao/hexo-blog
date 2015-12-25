@@ -20,23 +20,25 @@ $$A[i][j] = min(A[i][j-1], A[i+2^{j-1}][j-1])$$
 $$RMQ(u,v) = min(A[u][k], A[1+v-2^k][k])$$
 时间复杂度为$O(1)$。
 
-    vector<vector<int>> st(vector<int>& v) {
-        int sz = v.size();
-        int k = int(log(sz)/log(2)) + 1;
-        vector<vector<int>> table(sz, vector<int>(k));
+```cpp
+vector<vector<int>> st(vector<int>& v) {
+    int sz = v.size();
+    int k = int(log(sz)/log(2)) + 1;
+    vector<vector<int>> table(sz, vector<int>(k));
+    for( int i=0; i<sz; i++ )
+        table[i][0] = v[i];
+    int j = 1;
+    while( pow(2,j-1) < sz) {
         for( int i=0; i<sz; i++ )
-            table[i][0] = v[i];
-        int j = 1;
-        while( pow(2,j-1) < sz) {
-            for( int i=0; i<sz; i++ )
-                if( (i + pow(2,j-1)) < sz )
-                    table[i][j] = min(table[i][j-1], table[i+pow(2, j-1)][j-1]);
-            j++;
-        }
-        return table;
+            if( (i + pow(2,j-1)) < sz )
+                table[i][j] = min(table[i][j-1], table[i+pow(2, j-1)][j-1]);
+        j++;
     }
+    return table;
+}
 
-    int rmq(vector<vector<int>>& table, int u, int v) {
-        int len = v - u + 1, k = int(log(len)/log(2));
-        return min(table[u][k], table[1+v-pow(2,k)][k]);
-    }
+int rmq(vector<vector<int>>& table, int u, int v) {
+    int len = v - u + 1, k = int(log(len)/log(2));
+    return min(table[u][k], table[1+v-pow(2,k)][k]);
+}
+```

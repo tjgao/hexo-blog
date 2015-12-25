@@ -17,17 +17,19 @@ Suffix array 其实只是 suffix tree 的一种简化，而 suffix tree，只是
 
 根据这个定义，写一段代码来获取 suffix array 似乎颇为容易：
 
-    //A very naive implementation
-    vector<int> getSA_naive(string s) {
-        vector<int> v;
-        int len = s.length();
-        map<string, int> tmp;
-        for( int i=0; i<len; i++ )
-            tmp[s.substr(i, len-i)] = i;
-        for( auto it = tmp.begin(); it!=tmp.end(); ++it )
-            v.push_back(it->second);
-        return v;
-    }
+```cpp
+//A very naive implementation
+vector<int> getSA_naive(string s) {
+    vector<int> v;
+    int len = s.length();
+    map<string, int> tmp;
+    for( int i=0; i<len; i++ )
+        tmp[s.substr(i, len-i)] = i;
+    for( auto it = tmp.begin(); it!=tmp.end(); ++it )
+        v.push_back(it->second);
+    return v;
+}
+```
 
 再看看运行时间，字符串长度为n，n个字串排序，运行时间应为$O(nlgn)$。而每个字符串的比较又是$O(n)$，则总体时间复杂度为$O(n^2lgn)$。此处使用了C++的map，自带排序，所以找不到字符串排序的部分。但无论这个隐藏的排序在哪里，总是避免不了的。
 
@@ -43,59 +45,61 @@ Suffix array 其实只是 suffix tree 的一种简化，而 suffix tree，只是
 ![prefix doubling](http://7xl1lv.com1.z0.glb.clouddn.com/imageda.JPG)
 代码也附上。我相信还有各种可以优化的余地，但基本思路大致如此。
 
-    //Prefix doubling
-    typedef struct tagENTRY {
-        int pr[2];
-        int idx;
-        tagENTRY() {
-           pr[0] = pr[1] = idx = -1;
-        }
-    } ENTRY;
-    
-    bool cmp(ENTRY& e1, ENTRY& e2 ) {
-        return ( e1.pr[0] == e2.pr[0] ) ? ( e1.pr[1] < e2.pr[1] ) : ( e1.pr[0] < e2.pr[0] );
+```cpp
+//Prefix doubling
+typedef struct tagENTRY {
+    int pr[2];
+    int idx;
+    tagENTRY() {
+       pr[0] = pr[1] = idx = -1;
     }
-    
-    void update(vector<ENTRY>& entry, vector<int>& rank) {
-        sort( entry.begin(), entry.end(), cmp );
-        int n = 0, e1 = entry[0].pr[0], e2 = entry[0].pr[1];
-        for( int i=0; i<entry.size(); i++ ) {
-            if( e1 != entry[i].pr[0] || e2 != entry[i].pr[1] ) {
-                n++;
-                e1 = entry[i].pr[0];
-                e2 = entry[i].pr[1];
-            }
-            rank[entry[i].idx] = n;
+} ENTRY;
+
+bool cmp(ENTRY& e1, ENTRY& e2 ) {
+    return ( e1.pr[0] == e2.pr[0] ) ? ( e1.pr[1] < e2.pr[1] ) : ( e1.pr[0] < e2.pr[0] );
+}
+
+void update(vector<ENTRY>& entry, vector<int>& rank) {
+    sort( entry.begin(), entry.end(), cmp );
+    int n = 0, e1 = entry[0].pr[0], e2 = entry[0].pr[1];
+    for( int i=0; i<entry.size(); i++ ) {
+        if( e1 != entry[i].pr[0] || e2 != entry[i].pr[1] ) {
+            n++;
+            e1 = entry[i].pr[0];
+            e2 = entry[i].pr[1];
         }
-        for( int i=0; i<entry.size(); i++ )  {
-            entry[i].pr[0] = rank[entry[i].idx];
-        }
+        rank[entry[i].idx] = n;
     }
-    
-    vector<int> getSA_pd(string s) {
-        int len = s.length();
-        vector<int> rank(len);
-        vector<ENTRY> entry(len);
+    for( int i=0; i<entry.size(); i++ )  {
+        entry[i].pr[0] = rank[entry[i].idx];
+    }
+}
+
+vector<int> getSA_pd(string s) {
+    int len = s.length();
+    vector<int> rank(len);
+    vector<ENTRY> entry(len);
+    for( int i=0; i<len; i++ ) {
+        entry[i].pr[0] = s[i];
+        entry[i].idx = i;
+    }
+    update( entry, rank);
+    for( int step=1; step<len; step*=2 ) {
         for( int i=0; i<len; i++ ) {
-            entry[i].pr[0] = s[i];
-            entry[i].idx = i;
+            if( entry[i].idx + step < len )
+                entry[i].pr[1] = rank[entry[i].idx+step];
+            else
+                entry[i].pr[1] = -1;
         }
         update( entry, rank);
-        for( int step=1; step<len; step*=2 ) {
-            for( int i=0; i<len; i++ ) {
-                if( entry[i].idx + step < len )
-                    entry[i].pr[1] = rank[entry[i].idx+step];
-                else
-                    entry[i].pr[1] = -1;
-            }
-            update( entry, rank);
-        }
-        vector<int> v(len);
-        for( int i=0; i<len; i++ ) {
-            v[rank[i]] = i;
-        }
-        return v;
     }
+    vector<int> v(len);
+    for( int i=0; i<len; i++ ) {
+        v[rank[i]] = i;
+    }
+    return v;
+}
+```
 
 注意，rank是每次完成后的排名，其含义是，后缀索引为i的名次是rank[i]。我们需要的 suffix array，其含义是从小到大排出所有的后缀，所以这两正好是反的。假设 value = rank[i]， 则对于suffix array，有 sa[value] == i，所以最后求出suffix array并返回。
 
